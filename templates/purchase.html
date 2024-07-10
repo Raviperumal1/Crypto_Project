@@ -1,0 +1,109 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Purchase</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .container {
+            max-width: 600px;
+        }
+        .card {
+            border-radius: 1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #007bff;
+            color: white;
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header text-center">
+            <h2>Purchase Cryptocurrency</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{% url 'purchase' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="amount">Enter Amount</label>
+                    <input type="number" class="form-control" id="amount" name="amount" required>
+                </div>
+                <div class="form-group">
+                    <label for="currency">Select Currency</label>
+                    <select class="form-control" id="currency" name="currency" required>
+                        <option value="usd">USD</option>
+                        <option value="eur">EUR</option>
+                        <option value="gbp">GBP</option>
+                        <!-- Add more options as needed -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="crypto_currency">Select Cryptocurrency</label>
+                    <select class="form-control" id="crypto_currency" name="crypto_currency" required>
+                        <option value="bitcoin">Bitcoin (BTC)</option>
+                        <option value="ethereum">Ethereum (ETH)</option>
+                        <option value="litecoin">Litecoin (LTC)</option>
+                        <option value="tether">Tether (USDT)</option>
+                        <option value="bnb">BNB (BNB)</option>
+                        <option value="solana">Solana (SOL)</option>
+                        <option value="usdc">USD Coin (USDC)</option>
+                        <option value="xrp">XRP (XRP)</option>
+                        <option value="toncoin">Toncoin (TON)</option>
+                        <option value="dogecoin">Dogecoin (DOGE)</option>
+                        <option value="lido">Lido Staked Ether (LDO)</option>
+                        <!-- Add more options as needed -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="crypto_amount">Converted Amount</label>
+                    <input type="text" class="form-control" id="crypto_amount" name="crypto_amount" readonly>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Enter Card Details <span class="fas fa-arrow-right"></span></button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    $('#amount, #currency, #crypto_currency').on('change input', function() {
+        let amount = $('#amount').val();
+        let currency = $('#currency').val();
+        let cryptoCurrency = $('#crypto_currency').val();
+        
+        if (amount && currency && cryptoCurrency) {
+            $.ajax({
+                url: '{% url "get_crypto_price" %}',
+                data: {
+                    currency: currency,
+                    crypto_currency: cryptoCurrency
+                },
+                success: function(data) {
+                    if (data.price) {
+                        $('#crypto_amount').val((amount / data.price).toFixed(8));
+                    } else {
+                        $('#crypto_amount').val('');
+                    }
+                },
+                error: function() {
+                    $('#crypto_amount').val('');
+                }
+            });
+        } else {
+            $('#crypto_amount').val('');
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Crypto visualization{% endblock %}
+{% block content %}
+<style>
+  .news-card {
+    margin-bottom: 20px;
+  }
+</style>
+<div class="container">
+  <h1 class="mb-4">Crypto Currency News</h1>
+  <div id="news-container"></div>
+</div>
+
+<script>
+  const newsContainer = document.getElementById('news-container');
+
+  async function fetchCryptoNews() {
+    const proxyUrl = 'https://api.allorigins.win/get?url=';
+    const newsUrl = 'https://news.google.com/rss/search?q=cryptocurrency+when:7d&hl=en-US&gl=US&ceid=US:en';
+
+    const response = await fetch(proxyUrl + encodeURIComponent(newsUrl));
+    const data = await response.json();
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(data.contents, 'application/xml');
+    const items = xml.querySelectorAll('item');
+
+    const articles = Array.from(items).map(item => ({
+      title: item.querySelector('title').textContent,
+      description: item.querySelector('description').textContent,
+      link: item.querySelector('link').textContent,
+      pubDate: item.querySelector('pubDate').textContent,
+    }));
+
+    displayNews(articles);
+  }
+
+  function displayNews(articles) {
+    newsContainer.innerHTML = '';
+    articles.forEach(article => {
+      const newsCard = document.createElement('div');
+      newsCard.className = 'news-card';
+      newsCard.innerHTML = `
+        <div class="card">
+          <div class="card-body">
+            <p class="card-text">${article.description}</p>
+            <a href="${article.link}" class="btn btn-primary" target="_blank">Read more</a>
+          </div>
+        </div>
+      `;
+      newsContainer.appendChild(newsCard);
+    });
+  }
+
+  fetchCryptoNews();
+</script>
+
+{% endblock %}

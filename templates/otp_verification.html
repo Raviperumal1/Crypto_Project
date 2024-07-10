@@ -1,0 +1,22 @@
+{% extends 'base.html' %} {% block title %} OTP Verification {% endblock title %} {% block content %}
+
+<div class="text-white border-0 col-md-8 mx-auto mt-5">
+    <div class="card mb-3 text-center border-0">
+        <div class="row justify-content-center align-items-center p-5">
+            <div class="col-md-8">
+                <div class="card-body text-dark">
+                    <h5 class="card-title text-uppercase mb-2"><b>OTP Verification</b></h5>
+                    <p class="card-text text-uppercase mb-2"><small>Please enter the OTP sent to your email.</small></p>
+                    <form action="{% url 'verify_otp' %}" method="post" class="d-inline-block">
+                        {% csrf_token %}
+                        <label class="mr-2 font-weight-bold text-uppercase">Enter OTP</label><br>
+                        <input type="text" name="otp" class="form-control d-inline-block w-auto mr-2 mb-2" required><br><br>
+                        <button type="submit" class="btn btn-primary text-uppercase">Verify OTP</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %} {% block scripts %} {% endblock scripts %}

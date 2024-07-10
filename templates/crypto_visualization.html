@@ -1,0 +1,91 @@
+
+{% extends 'base.html' %}
+{% block title %}Crypto visualization{% endblock %}
+{% block content %}
+  <div class="container">
+    <h1>Visualization</h1>
+
+    <div class="crypto-graph">
+      <canvas id="cryptoChart" width="800" height="400"></canvas>
+    </div>
+  </div>
+
+  <!-- Include Bootstrap JS and Chart.js -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Fetch data from CryptoCompare API for multiple cryptocurrencies
+    async function fetchData() {
+        const cryptocurrencies = ['BTC', 'ETH', 'USDT', 'BNB', 'SOL', 'USDC', 'XRP', 'DOGE', 'TON'];
+        const allData = {};
+
+        for (const symbol of cryptocurrencies) {
+            const response = await fetch(`https://min-api.cryptocompare.com/data/v2/histoday?fsym=${symbol}&tsym=USD&limit=30`);
+            const data = await response.json();
+            allData[symbol] = data.Data.Data;
+        }
+
+        return allData; // Return the historical price data for all cryptocurrencies
+    }
+
+    // Plot graph using Chart.js
+    async function plotGraph() {
+        const allData = await fetchData();
+        const ctx = document.getElementById('cryptoChart').getContext('2d');
+        const dates = allData['BTC'].map(item => new Date(item.time * 1000));
+
+        const datasets = [];
+
+        for (const symbol in allData) {
+            const prices = allData[symbol].map(item => item.close);
+            const dataset = {
+                label: `${symbol} Price (USD)`,
+                data: prices,
+                borderColor: getRandomColor(), // Function to generate random color for each dataset
+                borderWidth: 1,
+                fill: false
+            };
+            datasets.push(dataset);
+        }
+
+        const myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: datasets
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            unit: 'day'
+                        }
+                    }],
+                    yAxes: [{
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Price (USD)'
+                        }
+                    }]
+                }
+            }
+        });
+    }
+
+    // Function to generate random color
+    function getRandomColor() {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    plotGraph(); // Call the function to plot the graph
+  </script>
+
+{% endblock %}
